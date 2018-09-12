@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  mongo_key: 's5eVDNzDmVAMPouX'
 };
