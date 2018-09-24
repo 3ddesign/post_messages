@@ -4,6 +4,7 @@ import { PageEvent } from '@angular/material';
 
 import { Post } from '../post.model';
 import { PostsService } from '../posts.service';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-post-list',
@@ -13,24 +14,36 @@ import { PostsService } from '../posts.service';
 export class PostListComponent implements OnInit, OnDestroy {
   posts: Post[] = [];
   private postsSub: Subscription;
+  private authStatusSub: Subscription;
 
   totalPosts = 0;
-  postsPerPage = 2;
+  postsPerPage = 5;
   currentPage = 1;
   pageSizeOptions = [1, 2, 5, 10];
 
+  userIsAuthenticated = false;
   isLoading = false;
 
-  constructor(public postsService: PostsService) {}
+  constructor(
+    public postsService: PostsService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
     this.isLoading = true;
     this.postsService.getPosts(this.postsPerPage, this.currentPage);
-    this.postsSub = this.postsService.getPostUpdateListener()
-      .subscribe((postData: {posts: Post[], postCount: number}) => {
+    this.postsSub = this.postsService
+      .getPostUpdateListener()
+      .subscribe((postData: { posts: Post[]; postCount: number }) => {
         this.isLoading = false;
         this.totalPosts = postData.postCount;
         this.posts = postData.posts;
+      });
+    this.userIsAuthenticated = this.authService.getIsAuth();
+    this.authStatusSub = this.authService
+      .getAuthStatusListener()
+      .subscribe(isAuthenticated => {
+        this.userIsAuthenticated = isAuthenticated;
       });
   }
 
@@ -41,7 +54,7 @@ export class PostListComponent implements OnInit, OnDestroy {
     });
   }
 
-  onChangePage(pageData: PageEvent ) {
+  onChangePage(pageData: PageEvent) {
     this.isLoading = true;
     this.currentPage = pageData.pageIndex + 1;
     this.postsPerPage = pageData.pageSize;
@@ -50,5 +63,6 @@ export class PostListComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.postsSub.unsubscribe();
+    this.authStatusSub.unsubscribe();
   }
 }
