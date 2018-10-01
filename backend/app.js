@@ -6,12 +6,11 @@ const path = require('path')
 const postsRoutes = require('./routes/posts');
 const userRoutes = require('./routes/user');
 
-
 const app = express();
 
 mongoose
   .connect(
-    'mongodb+srv://root:s5eVDNzDmVAMPouX@test-api-mhcni.mongodb.net/node-angular'
+    'mongodb+srv://root:' + process.env.MONGO_ATLES_PW + '@test-api-mhcni.mongodb.net/node-angular'
   )
   .then(() => {
     console.log('Connected to database!');
